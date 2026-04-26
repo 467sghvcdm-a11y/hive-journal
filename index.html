@@ -90,8 +90,18 @@
   .modal-overlay.open { display: flex; }
   .modal { background: var(--surface); border-radius: 12px; padding: 1.4rem; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-strong); }
   .modal-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--text); margin-bottom: 14px; }
-  .btn-add-entry { font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 6px 13px; border-radius: 6px; border: 1px solid var(--honey); background: var(--honey); color: var(--bark); cursor: pointer; white-space: nowrap; transition: all 0.15s; letter-spacing: 0.02em; }
-  .btn-add-entry:hover { background: #A87008; border-color: #A87008; color: var(--wax); }
+  .btn-add-entry { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(200,134,10,0.35); background: rgba(200,134,10,0.2); color: #FCD072; cursor: pointer; white-space: nowrap; transition: all 0.15s; letter-spacing: 0.04em; text-transform: uppercase; }
+  .btn-add-entry:hover { background: rgba(200,134,10,0.35); border-color: rgba(200,134,10,0.6); }
+
+  /* Drawer */
+  @media (max-width: 768px) {
+    #add-drawer { bottom:0; left:0; right:0; border-radius:16px 16px 0 0; max-height:90vh; transform:translateY(100%); }
+    #add-drawer.open { transform:translateY(0); }
+  }
+  @media (min-width: 769px) {
+    #add-drawer { top:0; right:0; bottom:0; width:420px; border-radius:0; transform:translateX(100%); border-left:1px solid var(--border-strong); }
+    #add-drawer.open { transform:translateX(0); }
+  }
   @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } header { flex-direction: column; align-items: flex-start; } .toolbar { flex-direction: column; align-items: stretch; } }
 </style>
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
@@ -106,15 +116,12 @@
     <div class="header-title">Warré Hive Journal</div>
     <div class="header-sub">MT. HELIX · EL CAJON, CA · OHB GOLDEN WEST</div>
   </div>
-  <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-    <div class="status-pill">COLONY ACTIVE</div>
-    <button class="btn-add-entry" onclick="showAddForm()">+ Add entry</button>
-  </div>
+  <button class="btn-add-entry" onclick="showAddForm()">+ Add entry</button>
 </header>
 
 <main>
   <div id="tab-log" class="section active" style="display:block;">
-    <div class="alert"><span class="alert-icon">🐝</span><span>Next check: Apr 27–30 — confirm queen is laying. Look for comb being drawn and young brood if light permits.</span></div>
+    <div class="alert"><span>Next check: Apr 27–30 — confirm queen is laying. Look for comb being drawn and young brood if light permits.</span></div>
     <div class="toolbar">
       <input type="text" id="search-input" placeholder="Search entries..." oninput="applyFilters()" />
       <select id="filter-period" onchange="applyFilters()">
@@ -127,71 +134,7 @@
     <div class="result-count" id="result-count"></div>
     <div class="entries-list" id="entries-list"><div class="empty-state"><div class="big">🍯</div>Loading entries...</div></div>
   </div>
-  <div id="tab-add" class="section" style="display:none;">
-    <div class="form-card">
-      <div class="form-section-title">New log entry</div>
-      <div class="form-grid">
-        <div><label>Date</label><input type="date" id="f-date" style="width:auto;min-width:0;" /></div>
-        <div><label>Entry type</label>
-          <select id="f-type">
-            <option value="check">Quick check</option>
-            <option value="inspection">Full inspection</option>
-            <option value="install">Install</option>
-            <option value="maintenance">Maintenance</option>
-            <option value="note">Note</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid">
-        <div><label>Queen status</label>
-          <select id="f-queen">
-            <option value="">Not checked</option>
-            <option value="Caged — candy exposed">Caged — candy exposed</option>
-            <option value="Released — confirmed">Released — confirmed</option>
-            <option value="Laying — brood seen">Laying — brood seen</option>
-            <option value="Possible issue">Possible issue</option>
-          </select>
-        </div>
-        <div><label>Temperament</label>
-          <select id="f-temp">
-            <option value="">Not noted</option>
-            <option value="Very calm">Very calm</option>
-            <option value="Calm">Calm</option>
-            <option value="Normal">Normal</option>
-            <option value="Defensive">Defensive</option>
-            <option value="Aggressive">Aggressive</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid">
-        <div><label>Syrup / feeding</label>
-          <select id="f-syrup">
-            <option value="">Not noted</option>
-            <option value="Full jar">Full jar</option>
-            <option value="75% full">75% full</option>
-            <option value="Half full">Half full</option>
-            <option value="25% full">25% full</option>
-            <option value="Empty — refilled">Empty — refilled</option>
-            <option value="Bees ignoring syrup">Bees ignoring syrup</option>
-            <option value="Feeding stopped">Feeding stopped</option>
-          </select>
-        </div>
-        <div><label>Entrance activity</label>
-          <div class="multiselect">
-            <div class="multiselect-display" id="ms-entrance-display" onclick="toggleDropdown('ms-entrance')"><span class="placeholder">Select...</span></div>
-            <div class="multiselect-dropdown" id="ms-entrance-dropdown"></div>
-          </div>
-        </div>
-      </div>
-      <div class="form-row"><label>Observations</label><textarea id="f-notes" placeholder="Comb progress, colony sounds, behavior, anything notable..."></textarea></div>
-      <div class="form-row"><label>Pest / disease notes</label><input type="text" id="f-pests" placeholder="e.g. no mites seen, small hive beetles present..." /></div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="saveEntry()">Save entry</button>
-        <button class="btn btn-ghost" onclick="hideAddForm()">Cancel</button>
-        <div class="save-msg" id="save-msg">✓ Saved</div>
-      </div>
-    </div>
-  </div>
+
 </main>
 
 <div class="modal-overlay" id="edit-modal">
@@ -499,13 +442,98 @@ function closeModal() { document.getElementById('edit-modal').classList.remove('
 function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function switchTab(name){document.getElementById('tab-log').style.display=name==='log'?'block':'none';document.getElementById('tab-add').style.display=name==='add'?'block':'none';}
-function showAddForm(){document.getElementById('tab-log').style.display='none';document.getElementById('tab-add').style.display='block';window.scrollTo(0,0);}
-function hideAddForm(){document.getElementById('tab-log').style.display='block';document.getElementById('tab-add').style.display='none';}
+function showAddForm(){
+  const drawer = document.getElementById('add-drawer');
+  const overlay = document.getElementById('drawer-overlay');
+  drawer.style.display = 'block';
+  overlay.style.display = 'block';
+  requestAnimationFrame(() => { drawer.classList.add('open'); overlay.style.opacity = '1'; });
+}
+function hideAddForm(){
+  const drawer = document.getElementById('add-drawer');
+  const overlay = document.getElementById('drawer-overlay');
+  drawer.classList.remove('open');
+  overlay.style.opacity = '0';
+  setTimeout(() => { drawer.style.display = 'none'; overlay.style.display = 'none'; }, 300);
+}
 document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 const _now = new Date();
 document.getElementById('f-date').value = _now.getFullYear() + '-' + String(_now.getMonth()+1).padStart(2,'0') + '-' + String(_now.getDate()).padStart(2,'0');
 initMultiselects();
 loadEntries();
 </script>
+
+<!-- DRAWER OVERLAY -->
+<div id="drawer-overlay" onclick="hideAddForm()" style="display:none;position:fixed;inset:0;background:rgba(30,15,5,0.45);z-index:200;transition:opacity 0.25s;"></div>
+
+<!-- DRAWER -->
+<div id="add-drawer" style="display:none;position:fixed;z-index:201;background:var(--surface);overflow-y:auto;transition:transform 0.3s cubic-bezier(.32,.72,0,1);">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.2rem 0.75rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;">
+    <span style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);">New log entry</span>
+    <button onclick="hideAddForm()" style="background:transparent;border:none;cursor:pointer;font-size:18px;color:var(--text-muted);line-height:1;padding:2px 4px;">✕</button>
+  </div>
+  <div style="padding:1rem 1.2rem 2rem;">
+    <div class="form-grid" style="margin-bottom:12px;">
+      <div><label>Date</label><input type="date" id="f-date" style="width:auto;min-width:0;" /></div>
+      <div><label>Entry type</label>
+        <select id="f-type">
+          <option value="check">Quick check</option>
+          <option value="inspection">Full inspection</option>
+          <option value="install">Install</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="note">Note</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid" style="margin-bottom:12px;">
+      <div><label>Queen status</label>
+        <select id="f-queen">
+          <option value="">Not checked</option>
+          <option value="Caged — candy exposed">Caged — candy exposed</option>
+          <option value="Released — confirmed">Released — confirmed</option>
+          <option value="Laying — brood seen">Laying — brood seen</option>
+          <option value="Possible issue">Possible issue</option>
+        </select>
+      </div>
+      <div><label>Temperament</label>
+        <select id="f-temp">
+          <option value="">Not noted</option>
+          <option value="Very calm">Very calm</option>
+          <option value="Calm">Calm</option>
+          <option value="Normal">Normal</option>
+          <option value="Defensive">Defensive</option>
+          <option value="Aggressive">Aggressive</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid" style="margin-bottom:12px;">
+      <div><label>Syrup / feeding</label>
+        <select id="f-syrup">
+          <option value="">Not noted</option>
+          <option value="Full jar">Full jar</option>
+          <option value="75% full">75% full</option>
+          <option value="Half full">Half full</option>
+          <option value="25% full">25% full</option>
+          <option value="Empty — refilled">Empty — refilled</option>
+          <option value="Bees ignoring syrup">Bees ignoring syrup</option>
+          <option value="Feeding stopped">Feeding stopped</option>
+        </select>
+      </div>
+      <div><label>Entrance activity</label>
+        <div class="multiselect">
+          <div class="multiselect-display" id="ms-entrance-display" onclick="toggleDropdown('ms-entrance')"><span class="placeholder">Select...</span></div>
+          <div class="multiselect-dropdown" id="ms-entrance-dropdown"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-row"><label>Observations</label><textarea id="f-notes" placeholder="Comb progress, colony sounds, behavior, anything notable..."></textarea></div>
+    <div class="form-row"><label>Pest / disease notes</label><input type="text" id="f-pests" placeholder="e.g. no mites seen, small hive beetles present..." /></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEntry()">Save entry</button>
+      <button class="btn btn-ghost" onclick="hideAddForm()">Cancel</button>
+      <div class="save-msg" id="save-msg">✓ Saved</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
