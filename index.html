@@ -308,17 +308,7 @@ async function loadEntries() {
   try {
     const res = await fetch(AT_URL + '?sort[0][field]=date&sort[0][direction]=desc&pageSize=100', { headers: atHeaders() });
     const data = await res.json();
-    if (data.records) {
-      allEntries = data.records.map(r => ({ id: r.id, ...r.fields }));
-      // Seed missing entries
-      const existingDates = allEntries.map(e => e.date);
-      const toSeed = SEED.filter(s => !existingDates.includes(s.date));
-      for (const s of toSeed) {
-        const r = await fetch(AT_URL, { method:'POST', headers: atHeaders(), body: JSON.stringify({ fields: { date:s.date, type:s.type, queen:s.queen||'', temp:s.temp||'', syrup:s.syrup||'', entrance:s.entrance||'', notes:s.notes||'', pests:s.pests||'' } }) });
-        const rd = await r.json();
-        if (rd.id) allEntries.push({ id: rd.id, ...rd.fields });
-      }
-    }
+    allEntries = (data.records || []).map(r => ({ id: r.id, ...r.fields }));
   } catch(e) {
     console.error('Load error:', e);
     document.getElementById('entries-list').innerHTML = '<div class="empty-state">Could not load entries. Check connection and refresh.</div>';
