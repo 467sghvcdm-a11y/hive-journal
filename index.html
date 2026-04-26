@@ -52,12 +52,7 @@
   .entry-meta { display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
   .meta-chip { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-muted); letter-spacing: 0.03em; }
   .meta-chip b { color: var(--text-mid); font-weight: 500; }
-  .ai-feedback { background: rgba(74,94,58,0.06); border-top: 1px solid rgba(74,94,58,0.15); padding: 11px 15px; }
-  .ai-feedback-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--moss); letter-spacing: 0.06em; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
-  .ai-feedback-text { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
-  .ai-feedback-loading { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); font-style: italic; }
-  .ai-feedback-btn { font-size: 11px; font-family: 'DM Mono', monospace; background: transparent; border: 1px solid rgba(74,94,58,0.3); border-radius: 4px; padding: 2px 8px; color: var(--moss); cursor: pointer; transition: all 0.15s; }
-  .ai-feedback-btn:hover { background: rgba(74,94,58,0.1); }
+
   .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-size: 14px; }
   .empty-state .big { font-family: 'DM Serif Display', serif; font-size: 2rem; margin-bottom: 8px; }
   .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; margin-bottom: 1rem; }
@@ -267,13 +262,12 @@
 
 <script>
 const ENTRANCE_OPTS = ['No traffic','Light traffic','Steady traffic','Heavy traffic','Pollen coming in','Orientation flights','Bees clustering outside','Robbing activity','Unusual stillness'];
-const SYSTEM_PROMPT = `You are a beekeeping advisor for Matt, a Warré hive keeper (2 seasons) at Mt. Helix, El Cajon CA (inland San Diego, warm Mediterranean climate). Colony: OHB Golden West package installed April 16 2026. Queen released April 20. Warré hive only — no Langstroth advice. Matt prefers treatment-free but wants all options. Be concise, practical, 2-4 sentences. Respond with observations, patterns, concerns, or next steps relevant to this specific log entry and the colony's current stage.`;
 
 const SEED = [
-  { id:'seed-1', date:'2026-04-16', type:'install', queen:'Caged — candy exposed (discovered corked, fixed Apr 17)', temp:'Very calm', syrup:'Two full jars installed', entrance:'Orientation flights', notes:'OHB Golden West package installed. Bees shaken into Box 1. Queen cage (JZ-BZ style) hung via toothpick method across Warré bars in Box 2. Candy plug inadvertently left corked at install — discovered and corrected next day.', pests:'None observed.', aiFeedback:'' },
-  { id:'seed-2', date:'2026-04-17', type:'check', queen:'Caged — candy exposed', temp:'Calm', syrup:'', entrance:'Steady traffic', notes:'Discovered candy plug was still corked from install. Opened cloth above Box 2, pulled cage, removed cork, re-hung via toothpick with candy now fully exposed. Bees calm throughout. Queen release clock starts today.', pests:'', aiFeedback:'' },
-  { id:'seed-3', date:'2026-04-18', type:'maintenance', queen:'', temp:'Very calm', syrup:'Full jar', entrance:'Steady traffic', notes:'Reconfigured feeding setup. Canvas folded back halfway to expose top bars. Wooden feeder board with 3.5" hole installed directly over open hive. Single mason jar inverted into hole — bees now have direct access to lid without canvas barrier. Feeder box placed on top. Small gap between feeder box and second box sealed with strips of birch veneer. No screen on feeder board hole — jar installation requires care to avoid bee escape but manageable. Bees were very gentle throughout, no sting attempts, no agitation. First real handling impression of the Golden West bees — notably calm.', pests:'', aiFeedback:'' },
-  { id:'seed-4', date:'2026-04-20', type:'check', queen:'Released — confirmed', temp:'Calm', syrup:'75% full', entrance:'Steady traffic', notes:'Queen release confirmed. Candy fully consumed, cage empty. Bees had begun drawing comb cells on sides of the cage. Cage removed. Colony showed mild response to opening — some buzzing and flying but calm overall. Feeder board and cloth replaced. Approx 20 dead bees observed on ground outside hive — consistent with shipping casualties being cleared out.', pests:'', aiFeedback:'' }
+  { id:'seed-1', date:'2026-04-16', type:'install', queen:'Caged — candy exposed (discovered corked, fixed Apr 17)', temp:'Very calm', syrup:'Two full jars installed', entrance:'Orientation flights', notes:'OHB Golden West package installed. Bees shaken into Box 1. Queen cage (JZ-BZ style) hung via toothpick method across Warré bars in Box 2. Candy plug inadvertently left corked at install — discovered and corrected next day.', pests:'None observed.' },
+  { id:'seed-2', date:'2026-04-17', type:'check', queen:'Caged — candy exposed', temp:'Calm', syrup:'', entrance:'Steady traffic', notes:'Discovered candy plug was still corked from install. Opened cloth above Box 2, pulled cage, removed cork, re-hung via toothpick with candy now fully exposed. Bees calm throughout. Queen release clock starts today.', pests:'' },
+  { id:'seed-3', date:'2026-04-18', type:'maintenance', queen:'', temp:'Very calm', syrup:'Full jar', entrance:'Steady traffic', notes:'Reconfigured feeding setup. Canvas folded back halfway to expose top bars. Wooden feeder board with 3.5" hole installed directly over open hive. Single mason jar inverted into hole — bees now have direct access to lid without canvas barrier. Feeder box placed on top. Small gap between feeder box and second box sealed with strips of birch veneer. No screen on feeder board hole — jar installation requires care to avoid bee escape but manageable. Bees were very gentle throughout, no sting attempts, no agitation. First real handling impression of the Golden West bees — notably calm.', pests:'' },
+  { id:'seed-4', date:'2026-04-20', type:'check', queen:'Released — confirmed', temp:'Calm', syrup:'75% full', entrance:'Steady traffic', notes:'Queen release confirmed. Candy fully consumed, cage empty. Bees had begun drawing comb cells on sides of the cage. Cage removed. Colony showed mild response to opening — some buzzing and flying but calm overall. Feeder board and cloth replaced. Approx 20 dead bees observed on ground outside hive — consistent with shipping casualties being cleared out.', pests:'' }
 ];
 
 let allEntries = [];
@@ -442,44 +436,16 @@ function renderEntries(entries) {
           ${e.pests?`<div class="meta-chip">Pests: <b>${esc(e.pests)}</b></div>`:''}
         </div>
       </div>
-      <div class="ai-feedback" id="fb-${e.id}">
-        <div class="ai-feedback-label">
-          <span>ADVISOR NOTE</span>
-          ${!e.aiFeedback?`<button class="ai-feedback-btn" onclick="generateFeedback('${e.id}')">Generate ↗</button>`:''}
-        </div>
-        <div class="ai-feedback-text" id="fb-text-${e.id}">${e.aiFeedback?esc(e.aiFeedback):'<span class="ai-feedback-loading">Tap Generate for AI feedback on this entry.</span>'}</div>
-      </div>
+
     </div>`).join('');
 }
 
-async function generateFeedback(id) {
-  const e = allEntries.find(x => x.id === id);
-  if (!e) return;
-  const btn = document.querySelector('#fb-'+id+' .ai-feedback-btn');
-  const txt = document.getElementById('fb-text-'+id);
-  if (btn) btn.remove();
-  txt.innerHTML = '<span class="ai-feedback-loading">Thinking...</span>';
-  const entryText = `[${e.date}] ${e.type.toUpperCase()}: ${e.notes}${e.queen?' | Queen: '+e.queen:''}${e.temp?' | Temp: '+e.temp:''}${e.syrup?' | Feeding: '+e.syrup:''}${e.entrance?' | Entrance: '+e.entrance:''}${e.pests?' | Pests: '+e.pests:''}`;
-  const history = allEntries.filter(x=>x.date<=e.date&&x.id!==e.id).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(-5).map(x=>`[${x.date}] ${x.type}: ${x.notes}${x.queen?' | Queen: '+x.queen:''}${x.temp?' | Temp: '+x.temp:''}`).join('\n');
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json', 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:400, system:SYSTEM_PROMPT, messages:[{role:'user',content:`Recent context:\n${history}\n\nEntry to analyze:\n${entryText}`}] })
-    });
-    const data = await res.json();
-    const reply = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('')||'No feedback generated.';
-    txt.textContent = reply;
-    const idx = allEntries.findIndex(x=>x.id===id);
-    if (idx!==-1) { allEntries[idx].aiFeedback = reply; await atUpdate(allEntries[idx].id, { aiFeedback: reply }); }
-  } catch(err) { txt.textContent = 'Could not reach advisor. Ask in the project chat.'; }
-}
 
 async function saveEntry() {
   const date = document.getElementById('f-date').value;
   const notes = document.getElementById('f-notes').value.trim();
   if (!date) { alert('Date is required.'); return; }
-  const fields = { date, type:document.getElementById('f-type').value, queen:document.getElementById('f-queen').value, temp:document.getElementById('f-temp').value, syrup:document.getElementById('f-syrup').value, entrance:getMsValue('ms-entrance'), notes, pests:document.getElementById('f-pests').value.trim(), aiFeedback:'' };
+  const fields = { date, type:document.getElementById('f-type').value, queen:document.getElementById('f-queen').value, temp:document.getElementById('f-temp').value, syrup:document.getElementById('f-syrup').value, entrance:getMsValue('ms-entrance'), notes, pests:document.getElementById('f-pests').value.trim() };
   const msg = document.getElementById('save-msg');
   msg.style.display = 'flex'; msg.textContent = 'Saving...';
   try {
@@ -488,7 +454,7 @@ async function saveEntry() {
     allEntries.push(newEntry);
     document.getElementById('f-notes').value=''; document.getElementById('f-pests').value=''; document.getElementById('f-queen').value=''; document.getElementById('f-temp').value=''; document.getElementById('f-syrup').value=''; setMsValues('ms-entrance','');
     msg.textContent = '✓ Saved';
-    setTimeout(async()=>{ msg.style.display='none'; hideAddForm(); applyFilters(); await generateFeedback(newEntry.id); }, 900);
+    setTimeout(async()=>{ msg.style.display='none'; hideAddForm(); applyFilters(); }, 900);
   } catch(e) { showSaveError(); }
 }
 
