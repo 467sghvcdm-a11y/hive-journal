@@ -100,9 +100,11 @@
   .modal-overlay.open { display: flex; }
   .modal { background: var(--surface); border-radius: 12px; padding: 1.4rem; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-strong); }
   .modal-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--text); margin-bottom: 14px; }
+  .btn-add-entry { font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 6px 13px; border-radius: 6px; border: 1px solid var(--honey); background: var(--honey); color: var(--bark); cursor: pointer; white-space: nowrap; transition: all 0.15s; letter-spacing: 0.02em; }
+  .btn-add-entry:hover { background: #A87008; border-color: #A87008; color: var(--wax); }
   @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } header { flex-direction: column; align-items: flex-start; } .toolbar { flex-direction: column; align-items: stretch; } }
 </style>
-  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+CiAgPGRlZnM+CiAgICA8Y2xpcFBhdGggaWQ9InIiPgogICAgICA8cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjM4IiByeT0iMzgiLz4KICAgIDwvY2xpcFBhdGg+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iMzgiIHJ5PSIzOCIgZmlsbD0iIzNEMkIxRiIvPgogIDx0ZXh0IHg9IjkwIiB5PSIxMTgiIGZvbnQtc2l6ZT0iOTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcHBsZSBDb2xvciBFbW9qaSxTZWdvZSBVSSBFbW9qaSxzYW5zLXNlcmlmIj7wn5CdPC90ZXh0Pgo8L3N2Zz4=">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Hive Journal">
@@ -114,14 +116,14 @@
     <div class="header-title">Warré Hive Journal</div>
     <div class="header-sub">MT. HELIX · EL CAJON, CA · OHB GOLDEN WEST</div>
   </div>
-  <div class="status-pill">COLONY ACTIVE</div>
+  <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+    <div class="status-pill">COLONY ACTIVE</div>
+    <button class="btn-add-entry" onclick="showAddForm()">+ Add entry</button>
+  </div>
 </header>
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('log')">Log</button>
-  <button class="tab" onclick="switchTab('add')">Add entry</button>
-</div>
+
 <main>
-  <div id="tab-log" class="section active">
+  <div id="tab-log" class="section active" style="display:block;">
     <div class="alert"><span class="alert-icon">🐝</span><span>Next check: Apr 27–30 — confirm queen is laying. Look for comb being drawn and young brood if light permits.</span></div>
     <div class="toolbar">
       <input type="text" id="search-input" placeholder="Search entries..." oninput="applyFilters()" />
@@ -137,11 +139,11 @@
     <div class="result-count" id="result-count"></div>
     <div class="entries-list" id="entries-list"><div class="empty-state"><div class="big">🍯</div>Loading entries...</div></div>
   </div>
-  <div id="tab-add" class="section">
+  <div id="tab-add" class="section" style="display:none;">
     <div class="form-card">
       <div class="form-section-title">New log entry</div>
       <div class="form-grid">
-        <div><label>Date</label><input type="date" id="f-date" /></div>
+        <div><label>Date</label><input type="date" id="f-date" style="width:auto;min-width:0;" /></div>
         <div><label>Entry type</label>
           <select id="f-type">
             <option value="check">Quick check</option>
@@ -197,7 +199,7 @@
       <div class="form-row"><label>Pest / disease notes</label><input type="text" id="f-pests" placeholder="e.g. no mites seen, small hive beetles present..." /></div>
       <div class="btn-row">
         <button class="btn btn-primary" onclick="saveEntry()">Save entry</button>
-        <button class="btn btn-ghost" onclick="switchTab('log')">Cancel</button>
+        <button class="btn btn-ghost" onclick="hideAddForm()">Cancel</button>
         <div class="save-msg" id="save-msg">✓ Saved</div>
       </div>
     </div>
@@ -483,7 +485,7 @@ async function generateFeedback(id) {
 async function saveEntry() {
   const date = document.getElementById('f-date').value;
   const notes = document.getElementById('f-notes').value.trim();
-  if (!date||!notes) { alert('Date and observations are required.'); return; }
+  if (!date) { alert('Date is required.'); return; }
   const fields = { date, type:document.getElementById('f-type').value, queen:document.getElementById('f-queen').value, temp:document.getElementById('f-temp').value, syrup:document.getElementById('f-syrup').value, entrance:getMsValue('ms-entrance'), notes, pests:document.getElementById('f-pests').value.trim(), aiFeedback:'' };
   const msg = document.getElementById('save-msg');
   msg.style.display = 'flex'; msg.textContent = 'Saving...';
@@ -493,7 +495,7 @@ async function saveEntry() {
     allEntries.push(newEntry);
     document.getElementById('f-notes').value=''; document.getElementById('f-pests').value=''; document.getElementById('f-queen').value=''; document.getElementById('f-temp').value=''; document.getElementById('f-syrup').value=''; setMsValues('ms-entrance','');
     msg.textContent = '✓ Saved';
-    setTimeout(async()=>{ msg.style.display='none'; switchTab('log'); applyFilters(); await generateFeedback(newEntry.id); }, 900);
+    setTimeout(async()=>{ msg.style.display='none'; hideAddForm(); applyFilters(); await generateFeedback(newEntry.id); }, 900);
   } catch(e) { showSaveError(); }
 }
 
@@ -557,9 +559,12 @@ async function summarizeEntries() {
 
 function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function switchTab(name){['log','add'].forEach((t,i)=>{document.querySelectorAll('.tab')[i].classList.toggle('active',t===name);document.getElementById('tab-'+t).classList.toggle('active',t===name);});}
+function switchTab(name){document.getElementById('tab-log').style.display=name==='log'?'block':'none';document.getElementById('tab-add').style.display=name==='add'?'block':'none';}
+function showAddForm(){document.getElementById('tab-log').style.display='none';document.getElementById('tab-add').style.display='block';window.scrollTo(0,0);}
+function hideAddForm(){document.getElementById('tab-log').style.display='block';document.getElementById('tab-add').style.display='none';}
 document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
-document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+const _now = new Date();
+document.getElementById('f-date').value = _now.getFullYear() + '-' + String(_now.getMonth()+1).padStart(2,'0') + '-' + String(_now.getDate()).padStart(2,'0');
 initMultiselects();
 loadEntries();
 </script>
