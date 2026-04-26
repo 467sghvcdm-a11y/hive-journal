@@ -32,11 +32,6 @@
   .toolbar input[type="text"] { flex: 1; min-width: 140px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: 'Instrument Sans', sans-serif; color: var(--text); outline: none; }
   .toolbar input[type="text"]:focus { border-color: var(--honey); }
   .toolbar select { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: 'Instrument Sans', sans-serif; color: var(--text); outline: none; cursor: pointer; }
-  .btn-summarize { font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 6px; border: 1px solid var(--honey); background: transparent; color: var(--honey); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
-  .btn-summarize:hover { background: var(--honey); color: var(--wax); }
-  .summary-box { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--moss-light); border-radius: 6px; padding: 12px 14px; margin-bottom: 1rem; font-size: 13.5px; color: var(--text-mid); line-height: 1.7; display: none; }
-  .summary-box.visible { display: block; }
-  .summary-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--moss); letter-spacing: 0.06em; margin-bottom: 6px; }
   .result-count { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.03em; }
   .entries-list { display: flex; flex-direction: column; gap: 12px; }
   .entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.15s; }
@@ -133,9 +128,7 @@
         <option value="month">This month</option>
         <option value="year">This year</option>
       </select>
-      <button class="btn-summarize" onclick="summarizeEntries()">Summarize ↗</button>
     </div>
-    <div class="summary-box" id="summary-box"><div class="summary-label">AI SUMMARY</div><div id="summary-text"></div></div>
     <div class="result-count" id="result-count"></div>
     <div class="entries-list" id="entries-list"><div class="empty-state"><div class="big">🍯</div>Loading entries...</div></div>
   </div>
@@ -536,26 +529,6 @@ async function deleteEntry() {
 
 function closeModal() { document.getElementById('edit-modal').classList.remove('open'); editingId=null; }
 
-async function summarizeEntries() {
-  const q=(document.getElementById('search-input').value||'').toLowerCase();
-  const period=document.getElementById('filter-period').value; const now=new Date();
-  let filtered=allEntries.filter(e=>{
-    if(period==='week'){const d=new Date(e.date+'T12:00:00');const sow=new Date(now);sow.setDate(now.getDate()-now.getDay());sow.setHours(0,0,0,0);if(d<sow)return false;}
-    else if(period==='month'){const d=new Date(e.date+'T12:00:00');if(d.getMonth()!==now.getMonth()||d.getFullYear()!==now.getFullYear())return false;}
-    else if(period==='year'){const d=new Date(e.date+'T12:00:00');if(d.getFullYear()!==now.getFullYear())return false;}
-    if(q){const hay=[e.notes,e.queen,e.temp,e.syrup,e.entrance,e.pests,e.type].join(' ').toLowerCase();if(!hay.includes(q))return false;}
-    return true;
-  });
-  if(!filtered.length){alert('No entries to summarize.');return;}
-  const box=document.getElementById('summary-box');const txt=document.getElementById('summary-text');
-  box.classList.add('visible');txt.textContent='Summarizing...';
-  const logText=filtered.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>`[${e.date}] ${e.type.toUpperCase()}: ${e.notes}${e.queen?' | Queen: '+e.queen:''}${e.temp?' | Temp: '+e.temp:''}${e.syrup?' | Feeding: '+e.syrup:''}${e.entrance?' | Entrance: '+e.entrance:''}${e.pests?' | Pests: '+e.pests:''}`).join('\n');
-  try {
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'You are a beekeeping advisor summarizing hive journal entries for Matt, a Warré beekeeper at Mt. Helix, El Cajon CA. Summarize colony health trends, queen status, feeding, temperament, any concerns. Be concise and practical. 3-5 sentences.',messages:[{role:'user',content:'Summarize these hive log entries:\n\n'+logText}]})});
-    const data=await res.json();
-    txt.textContent=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('')||'Could not generate summary.';
-  } catch(e){txt.textContent='Could not reach summary service. Ask in the project chat.';}
-}
 
 function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
