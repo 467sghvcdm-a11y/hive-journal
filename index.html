@@ -4,6 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Warré Hive Journal — Mt. Helix</title>
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hive Journal">
+<meta name="theme-color" content="#3D2B1F">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
 <style>
   :root {
@@ -18,16 +23,10 @@
   header { background: var(--bark); color: var(--wax); padding: 1.1rem 1.5rem 0.9rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; border-bottom: 3px solid var(--honey); }
   .header-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--honey-light); line-height: 1.1; }
   .header-sub { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--bark-light); letter-spacing: 0.06em; margin-top: 3px; }
-  .status-pill { font-size: 10px; font-family: 'DM Mono', monospace; background: rgba(200,134,10,0.18); color: var(--honey-light); border: 1px solid rgba(200,134,10,0.3); border-radius: 20px; padding: 3px 11px; white-space: nowrap; }
-  .tabs { display: flex; background: var(--bark); padding: 0 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
-  .tab { font-size: 13px; font-weight: 500; color: var(--bark-light); background: transparent; border: none; padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; font-family: 'Instrument Sans', sans-serif; }
-  .tab:hover { color: var(--wax); }
-  .tab.active { color: var(--honey-light); border-bottom-color: var(--honey); }
+  .btn-add-entry { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(200,134,10,0.35); background: rgba(200,134,10,0.2); color: #FCD072; cursor: pointer; white-space: nowrap; transition: all 0.15s; letter-spacing: 0.04em; text-transform: uppercase; }
+  .btn-add-entry:hover { background: rgba(200,134,10,0.35); border-color: rgba(200,134,10,0.6); }
   main { padding: 1.1rem 1.5rem; max-width: 780px; margin: 0 auto; }
-  .section { display: none; }
-  .section.active { display: block; }
   .alert { background: var(--surface); border: 1px solid var(--honey); border-left: 4px solid var(--honey); border-radius: 6px; padding: 9px 13px; margin-bottom: 1rem; font-size: 13px; color: var(--bark); display: flex; gap: 9px; align-items: flex-start; }
-  .alert-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
   .toolbar { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
   .toolbar input[type="text"] { flex: 1; min-width: 140px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: 'Instrument Sans', sans-serif; color: var(--text); outline: none; }
   .toolbar input[type="text"]:focus { border-color: var(--honey); }
@@ -52,17 +51,14 @@
   .entry-meta { display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
   .meta-chip { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-muted); letter-spacing: 0.03em; }
   .meta-chip b { color: var(--text-mid); font-weight: 500; }
-
   .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-size: 14px; }
   .empty-state .big { font-family: 'DM Serif Display', serif; font-size: 2rem; margin-bottom: 8px; }
-  .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; margin-bottom: 1rem; }
-  .form-section-title { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--text); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .form-row { margin-bottom: 12px; }
   label { display: block; font-size: 11px; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
   input[type="text"], input[type="date"], select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border-strong); border-radius: 6px; padding: 8px 10px; font-size: 13.5px; font-family: 'Instrument Sans', sans-serif; color: var(--text); outline: none; transition: border-color 0.15s; }
   input:focus, select:focus, textarea:focus { border-color: var(--honey); background: var(--surface); }
   textarea { min-height: 88px; resize: vertical; line-height: 1.5; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row { margin-bottom: 12px; }
   .multiselect { position: relative; }
   .multiselect-display { width: 100%; background: var(--bg); border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: 'Instrument Sans', sans-serif; color: var(--text); cursor: pointer; min-height: 36px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; transition: border-color 0.15s; }
   .multiselect-display.open { border-color: var(--honey); background: var(--surface); }
@@ -90,10 +86,9 @@
   .modal-overlay.open { display: flex; }
   .modal { background: var(--surface); border-radius: 12px; padding: 1.4rem; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-strong); }
   .modal-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--text); margin-bottom: 14px; }
-  .btn-add-entry { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(200,134,10,0.35); background: rgba(200,134,10,0.2); color: #FCD072; cursor: pointer; white-space: nowrap; transition: all 0.15s; letter-spacing: 0.04em; text-transform: uppercase; }
-  .btn-add-entry:hover { background: rgba(200,134,10,0.35); border-color: rgba(200,134,10,0.6); }
-
   /* Drawer */
+  #drawer-overlay { display:none; position:fixed; inset:0; background:rgba(30,15,5,0.45); z-index:200; opacity:0; transition:opacity 0.25s; }
+  #add-drawer { display:none; position:fixed; z-index:201; background:var(--surface); overflow-y:auto; transition:transform 0.3s cubic-bezier(.32,.72,0,1); }
   @media (max-width: 768px) {
     #add-drawer { bottom:0; left:0; right:0; border-radius:16px 16px 0 0; max-height:90vh; transform:translateY(100%); }
     #add-drawer.open { transform:translateY(0); }
@@ -102,15 +97,15 @@
     #add-drawer { top:0; right:0; bottom:0; width:420px; border-radius:0; transform:translateX(100%); border-left:1px solid var(--border-strong); }
     #add-drawer.open { transform:translateX(0); }
   }
-  @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } header { flex-direction: column; align-items: flex-start; } .toolbar { flex-direction: column; align-items: stretch; } }
+  @media (max-width: 500px) {
+    .form-grid { grid-template-columns: 1fr; }
+    header { flex-direction: column; align-items: flex-start; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+  }
 </style>
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Hive Journal">
-  <meta name="theme-color" content="#3D2B1F">
 </head>
 <body>
+
 <header>
   <div>
     <div class="header-title">Warré Hive Journal</div>
@@ -120,23 +115,21 @@
 </header>
 
 <main>
-  <div id="tab-log" class="section active" style="display:block;">
-    <div class="alert"><span>Next check: Apr 27–30 — confirm queen is laying. Look for comb being drawn and young brood if light permits.</span></div>
-    <div class="toolbar">
-      <input type="text" id="search-input" placeholder="Search entries..." oninput="applyFilters()" />
-      <select id="filter-period" onchange="applyFilters()">
-        <option value="all">All time</option>
-        <option value="week">This week</option>
-        <option value="month">This month</option>
-        <option value="year">This year</option>
-      </select>
-    </div>
-    <div class="result-count" id="result-count"></div>
-    <div class="entries-list" id="entries-list"><div class="empty-state"><div class="big">🍯</div>Loading entries...</div></div>
+  <div class="alert"><span>Next check: Apr 27–30 — confirm queen is laying. Look for comb being drawn and young brood if light permits.</span></div>
+  <div class="toolbar">
+    <input type="text" id="search-input" placeholder="Search entries..." oninput="applyFilters()" />
+    <select id="filter-period" onchange="applyFilters()">
+      <option value="all">All time</option>
+      <option value="week">This week</option>
+      <option value="month">This month</option>
+      <option value="year">This year</option>
+    </select>
   </div>
-
+  <div class="result-count" id="result-count"></div>
+  <div class="entries-list" id="entries-list"><div class="empty-state"><div class="big">🍯</div>Connecting...</div></div>
 </main>
 
+<!-- EDIT MODAL -->
 <div class="modal-overlay" id="edit-modal">
   <div class="modal">
     <div class="modal-title">Edit entry</div>
@@ -203,19 +196,259 @@
   </div>
 </div>
 
-<script>
-const ENTRANCE_OPTS = ['No traffic','Light traffic','Steady traffic','Heavy traffic','Pollen coming in','Orientation flights','Bees clustering outside','Robbing activity','Unusual stillness'];
+<!-- DRAWER OVERLAY -->
+<div id="drawer-overlay" onclick="hideAddForm()"></div>
 
-const SEED = [
-  { id:'seed-1', date:'2026-04-16', type:'install', queen:'Caged — candy exposed (discovered corked, fixed Apr 17)', temp:'Very calm', syrup:'Two full jars installed', entrance:'Orientation flights', notes:'OHB Golden West package installed. Bees shaken into Box 1. Queen cage (JZ-BZ style) hung via toothpick method across Warré bars in Box 2. Candy plug inadvertently left corked at install — discovered and corrected next day.', pests:'None observed.' },
-  { id:'seed-2', date:'2026-04-17', type:'check', queen:'Caged — candy exposed', temp:'Calm', syrup:'', entrance:'Steady traffic', notes:'Discovered candy plug was still corked from install. Opened cloth above Box 2, pulled cage, removed cork, re-hung via toothpick with candy now fully exposed. Bees calm throughout. Queen release clock starts today.', pests:'' },
-  { id:'seed-3', date:'2026-04-18', type:'maintenance', queen:'', temp:'Very calm', syrup:'Full jar', entrance:'Steady traffic', notes:'Reconfigured feeding setup. Canvas folded back halfway to expose top bars. Wooden feeder board with 3.5" hole installed directly over open hive. Single mason jar inverted into hole — bees now have direct access to lid without canvas barrier. Feeder box placed on top. Small gap between feeder box and second box sealed with strips of birch veneer. No screen on feeder board hole — jar installation requires care to avoid bee escape but manageable. Bees were very gentle throughout, no sting attempts, no agitation. First real handling impression of the Golden West bees — notably calm.', pests:'' },
-  { id:'seed-4', date:'2026-04-20', type:'check', queen:'Released — confirmed', temp:'Calm', syrup:'75% full', entrance:'Steady traffic', notes:'Queen release confirmed. Candy fully consumed, cage empty. Bees had begun drawing comb cells on sides of the cage. Cage removed. Colony showed mild response to opening — some buzzing and flying but calm overall. Feeder board and cloth replaced. Approx 20 dead bees observed on ground outside hive — consistent with shipping casualties being cleared out.', pests:'' }
-];
+<!-- ADD DRAWER -->
+<div id="add-drawer">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.2rem 0.75rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;">
+    <span style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);">New log entry</span>
+    <button onclick="hideAddForm()" style="background:transparent;border:none;cursor:pointer;font-size:18px;color:var(--text-muted);line-height:1;padding:2px 6px;">✕</button>
+  </div>
+  <div style="padding:1rem 1.2rem 2rem;">
+    <div class="form-grid">
+      <div><label>Date</label><input type="date" id="f-date" style="width:auto;min-width:0;" /></div>
+      <div><label>Entry type</label>
+        <select id="f-type">
+          <option value="check">Quick check</option>
+          <option value="inspection">Full inspection</option>
+          <option value="install">Install</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="note">Note</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div><label>Queen status</label>
+        <select id="f-queen">
+          <option value="">Not checked</option>
+          <option value="Caged — candy exposed">Caged — candy exposed</option>
+          <option value="Released — confirmed">Released — confirmed</option>
+          <option value="Laying — brood seen">Laying — brood seen</option>
+          <option value="Possible issue">Possible issue</option>
+        </select>
+      </div>
+      <div><label>Temperament</label>
+        <select id="f-temp">
+          <option value="">Not noted</option>
+          <option value="Very calm">Very calm</option>
+          <option value="Calm">Calm</option>
+          <option value="Normal">Normal</option>
+          <option value="Defensive">Defensive</option>
+          <option value="Aggressive">Aggressive</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div><label>Syrup / feeding</label>
+        <select id="f-syrup">
+          <option value="">Not noted</option>
+          <option value="Full jar">Full jar</option>
+          <option value="75% full">75% full</option>
+          <option value="Half full">Half full</option>
+          <option value="25% full">25% full</option>
+          <option value="Empty — refilled">Empty — refilled</option>
+          <option value="Bees ignoring syrup">Bees ignoring syrup</option>
+          <option value="Feeding stopped">Feeding stopped</option>
+        </select>
+      </div>
+      <div><label>Entrance activity</label>
+        <div class="multiselect">
+          <div class="multiselect-display" id="ms-entrance-display" onclick="toggleDropdown('ms-entrance')"><span class="placeholder">Select...</span></div>
+          <div class="multiselect-dropdown" id="ms-entrance-dropdown"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-row"><label>Observations</label><textarea id="f-notes" placeholder="Comb progress, colony sounds, behavior, anything notable..."></textarea></div>
+    <div class="form-row"><label>Pest / disease notes</label><input type="text" id="f-pests" placeholder="e.g. no mites seen, small hive beetles present..." /></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEntry()">Save entry</button>
+      <button class="btn btn-ghost" onclick="hideAddForm()">Cancel</button>
+      <div class="save-msg" id="save-msg">✓ Saved</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const AT_TOKEN = 'patloECjNSHZoYxIN.d09416bf747924f85c5685dd5b0ec6d2a5a9adf0b76147c3a747006896569c1e';
+const AT_BASE = 'appov50KYjdlDGQuh';
+const AT_TABLE = 'Entries';
+const AT_URL = `https://api.airtable.com/v0/${AT_BASE}/${AT_TABLE}`;
+
+const ENTRANCE_OPTS = ['No traffic','Light traffic','Steady traffic','Heavy traffic','Pollen coming in','Orientation flights','Bees clustering outside','Robbing activity','Unusual stillness'];
 
 let allEntries = [];
 let editingId = null;
 const msState = { 'ms-entrance': [], 'ms-eentrance': [] };
+
+function atHeaders() {
+  return { 'Authorization': 'Bearer ' + AT_TOKEN, 'Content-Type': 'application/json' };
+}
+
+async function loadEntries() {
+  const list = document.getElementById('entries-list');
+  list.innerHTML = '<div class="empty-state">Loading...</div>';
+  try {
+    const res = await fetch(AT_URL + '?sort[0][field]=date&sort[0][direction]=desc&pageSize=100', { headers: atHeaders() });
+    const data = await res.json();
+    if (data.error) {
+      list.innerHTML = '<div class="empty-state">Airtable error: ' + data.error.message + '</div>';
+      return;
+    }
+    allEntries = (data.records || []).map(r => ({ id: r.id, ...r.fields }));
+  } catch(e) {
+    list.innerHTML = '<div class="empty-state">Could not load entries. Check connection and refresh.</div>';
+    return;
+  }
+  applyFilters();
+}
+
+async function atCreate(fields) {
+  const res = await fetch(AT_URL, { method:'POST', headers: atHeaders(), body: JSON.stringify({ fields }) });
+  const data = await res.json();
+  return data.id ? { id: data.id, ...data.fields } : null;
+}
+
+async function atUpdate(id, fields) {
+  await fetch(AT_URL + '/' + id, { method:'PATCH', headers: atHeaders(), body: JSON.stringify({ fields }) });
+}
+
+async function atDelete(id) {
+  await fetch(AT_URL + '/' + id, { method:'DELETE', headers: atHeaders() });
+}
+
+function applyFilters() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  const period = document.getElementById('filter-period').value;
+  const now = new Date();
+  let filtered = allEntries.filter(e => {
+    if (period === 'week') { const d = new Date(e.date+'T12:00:00'); const sow = new Date(now); sow.setDate(now.getDate()-now.getDay()); sow.setHours(0,0,0,0); if (d < sow) return false; }
+    else if (period === 'month') { const d = new Date(e.date+'T12:00:00'); if (d.getMonth()!==now.getMonth()||d.getFullYear()!==now.getFullYear()) return false; }
+    else if (period === 'year') { const d = new Date(e.date+'T12:00:00'); if (d.getFullYear()!==now.getFullYear()) return false; }
+    if (q) { const hay = [e.notes,e.queen,e.temp,e.syrup,e.entrance,e.pests,e.type,e.date].join(' ').toLowerCase(); if (!hay.includes(q)) return false; }
+    return true;
+  });
+  document.getElementById('result-count').textContent = filtered.length === allEntries.length ? allEntries.length+' entries' : filtered.length+' of '+allEntries.length+' entries';
+  renderEntries(filtered);
+}
+
+function renderEntries(entries) {
+  const list = document.getElementById('entries-list');
+  if (!entries.length) { list.innerHTML = '<div class="empty-state"><div class="big">🍯</div>No entries match.</div>'; return; }
+  const sorted = [...entries].sort((a,b) => new Date(b.date)-new Date(a.date));
+  list.innerHTML = sorted.map(e => `
+    <div class="entry-card">
+      <div class="entry-inner">
+        <div class="entry-top">
+          <div class="entry-date">${fmtDate(e.date)}</div>
+          <div class="entry-badges"><span class="badge badge-${e.type||'note'}">${e.type||'note'}</span><button class="btn-edit" onclick="openEdit('${e.id}')">edit</button></div>
+        </div>
+        ${e.notes ? `<div class="entry-body">${esc(e.notes)}</div>` : ''}
+        <div class="entry-meta">
+          ${e.queen?`<div class="meta-chip">Queen: <b>${esc(e.queen)}</b></div>`:''}
+          ${e.temp?`<div class="meta-chip">Temperament: <b>${esc(e.temp)}</b></div>`:''}
+          ${e.syrup?`<div class="meta-chip">Feeding: <b>${esc(e.syrup)}</b></div>`:''}
+          ${e.entrance?`<div class="meta-chip">Entrance: <b>${esc(e.entrance)}</b></div>`:''}
+          ${e.pests?`<div class="meta-chip">Pests: <b>${esc(e.pests)}</b></div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+async function saveEntry() {
+  const date = document.getElementById('f-date').value;
+  if (!date) { alert('Date is required.'); return; }
+  const fields = {
+    date,
+    type: document.getElementById('f-type').value,
+    queen: document.getElementById('f-queen').value,
+    temp: document.getElementById('f-temp').value,
+    syrup: document.getElementById('f-syrup').value,
+    entrance: getMsValue('ms-entrance'),
+    notes: document.getElementById('f-notes').value.trim(),
+    pests: document.getElementById('f-pests').value.trim()
+  };
+  const msg = document.getElementById('save-msg');
+  msg.style.display = 'flex'; msg.textContent = 'Saving...';
+  try {
+    const newEntry = await atCreate(fields);
+    if (!newEntry) { msg.textContent = '✗ Failed'; setTimeout(()=>{ msg.style.display='none'; msg.textContent='✓ Saved'; }, 2000); return; }
+    allEntries.push(newEntry);
+    document.getElementById('f-notes').value = '';
+    document.getElementById('f-pests').value = '';
+    document.getElementById('f-queen').value = '';
+    document.getElementById('f-temp').value = '';
+    document.getElementById('f-syrup').value = '';
+    setMsValues('ms-entrance', '');
+    msg.textContent = '✓ Saved';
+    setTimeout(() => { msg.style.display='none'; hideAddForm(); applyFilters(); }, 900);
+  } catch(e) {
+    msg.textContent = '✗ Failed'; msg.style.color = '#B84040';
+    setTimeout(() => { msg.style.display='none'; msg.style.color=''; msg.textContent='✓ Saved'; }, 2000);
+  }
+}
+
+function openEdit(id) {
+  const e = allEntries.find(x => x.id === id);
+  if (!e) return;
+  editingId = id;
+  document.getElementById('e-date').value = e.date || '';
+  document.getElementById('e-type').value = e.type || 'check';
+  document.getElementById('e-queen').value = e.queen || '';
+  document.getElementById('e-temp').value = e.temp || '';
+  document.getElementById('e-syrup').value = e.syrup || '';
+  document.getElementById('e-notes').value = e.notes || '';
+  document.getElementById('e-pests').value = e.pests || '';
+  setMsValues('ms-eentrance', e.entrance || '');
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+async function saveEdit() {
+  const idx = allEntries.findIndex(x => x.id === editingId);
+  if (idx === -1) return;
+  const fields = {
+    date: document.getElementById('e-date').value,
+    type: document.getElementById('e-type').value,
+    queen: document.getElementById('e-queen').value,
+    temp: document.getElementById('e-temp').value,
+    syrup: document.getElementById('e-syrup').value,
+    entrance: getMsValue('ms-eentrance'),
+    notes: document.getElementById('e-notes').value.trim(),
+    pests: document.getElementById('e-pests').value.trim()
+  };
+  try {
+    await atUpdate(editingId, fields);
+    allEntries[idx] = { ...allEntries[idx], ...fields };
+    closeModal(); applyFilters();
+  } catch(e) { alert('Could not save changes. Try again.'); }
+}
+
+async function deleteEntry() {
+  if (!confirm('Delete this entry?')) return;
+  try {
+    await atDelete(editingId);
+    allEntries = allEntries.filter(x => x.id !== editingId);
+    closeModal(); applyFilters();
+  } catch(e) { alert('Could not delete. Try again.'); }
+}
+
+function closeModal() { document.getElementById('edit-modal').classList.remove('open'); editingId = null; }
+
+function showAddForm() {
+  const drawer = document.getElementById('add-drawer');
+  const overlay = document.getElementById('drawer-overlay');
+  drawer.style.display = 'block';
+  overlay.style.display = 'block';
+  requestAnimationFrame(() => { drawer.classList.add('open'); overlay.style.opacity = '1'; });
+}
+
+function hideAddForm() {
+  const drawer = document.getElementById('add-drawer');
+  const overlay = document.getElementById('drawer-overlay');
+  drawer.classList.remove('open');
+  overlay.style.opacity = '0';
+  setTimeout(() => { drawer.style.display = 'none'; overlay.style.display = 'none'; }, 300);
+}
 
 function initMultiselects() {
   buildDropdown('ms-entrance', ENTRANCE_OPTS);
@@ -247,8 +480,7 @@ function toggleOpt(id, val) {
   const arr = msState[id];
   const idx = arr.indexOf(val);
   if (idx === -1) arr.push(val); else arr.splice(idx, 1);
-  refreshDropdown(id);
-  refreshDisplay(id);
+  refreshDropdown(id); refreshDisplay(id);
 }
 
 function refreshDropdown(id) {
@@ -280,8 +512,7 @@ function refreshDisplay(id) {
 
 function setMsValues(id, val) {
   msState[id] = val ? val.split(', ').filter(Boolean) : [];
-  refreshDropdown(id);
-  refreshDisplay(id);
+  refreshDropdown(id); refreshDisplay(id);
 }
 
 function getMsValue(id) { return msState[id].join(', '); }
@@ -293,247 +524,22 @@ document.addEventListener('click', function(e) {
   }
 });
 
-const AT_TOKEN = 'patloECjNSHZoYxIN.d09416bf747924f85c5685dd5b0ec6d2a5a9adf0b76147c3a747006896569c1e';
-const AT_BASE = 'appov50KYjdlDGQuh';
-const AT_TABLE = 'Entries';
-const AT_URL = `https://api.airtable.com/v0/${AT_BASE}/${AT_TABLE}`;
+document.getElementById('edit-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
-function atHeaders() {
-  return { 'Authorization': 'Bearer ' + AT_TOKEN, 'Content-Type': 'application/json' };
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
 }
 
-async function loadEntries() {
-  const list = document.getElementById('entries-list');
-  list.innerHTML = '<div class="empty-state">Connecting to Airtable...</div>';
-  try {
-    list.innerHTML = '<div class="empty-state">Fetching records...</div>';
-    const res = await fetch(AT_URL + '?sort[0][field]=date&sort[0][direction]=desc&pageSize=100', { headers: atHeaders() });
-    list.innerHTML = '<div class="empty-state">Parsing response (status ' + res.status + ')...</div>';
-    const data = await res.json();
-    if (data.error) {
-      list.innerHTML = '<div class="empty-state">Airtable error: ' + data.error.message + '</div>';
-      return;
-    }
-    allEntries = (data.records || []).map(r => ({ id: r.id, ...r.fields }));
-    list.innerHTML = '<div class="empty-state">Got ' + allEntries.length + ' entries, rendering...</div>';
-  } catch(e) {
-    list.innerHTML = '<div class="empty-state">Error: ' + e.message + '</div>';
-    return;
-  }
-  applyFilters();
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-async function atCreate(fields) {
-  const res = await fetch(AT_URL, { method:'POST', headers: atHeaders(), body: JSON.stringify({ fields }) });
-  const data = await res.json();
-  return data.id ? { id: data.id, ...data.fields } : null;
-}
-
-async function atUpdate(id, fields) {
-  await fetch(AT_URL + '/' + id, { method:'PATCH', headers: atHeaders(), body: JSON.stringify({ fields }) });
-}
-
-async function atDelete(id) {
-  await fetch(AT_URL + '/' + id, { method:'DELETE', headers: atHeaders() });
-}
-
-function showSaveError() {
-  const msg = document.getElementById('save-msg');
-  msg.style.display = 'flex'; msg.style.color = '#B84040';
-  msg.textContent = '✗ Save failed';
-  setTimeout(() => { msg.style.display = 'none'; msg.style.color = ''; msg.textContent = '✓ Saved'; }, 3000);
-}
-
-function applyFilters() {
-  const q = (document.getElementById('search-input').value || '').toLowerCase();
-  const period = document.getElementById('filter-period').value;
-  const now = new Date();
-  let filtered = allEntries.filter(e => {
-    if (period === 'week') { const d = new Date(e.date+'T12:00:00'); const sow = new Date(now); sow.setDate(now.getDate()-now.getDay()); sow.setHours(0,0,0,0); if (d < sow) return false; }
-    else if (period === 'month') { const d = new Date(e.date+'T12:00:00'); if (d.getMonth()!==now.getMonth()||d.getFullYear()!==now.getFullYear()) return false; }
-    else if (period === 'year') { const d = new Date(e.date+'T12:00:00'); if (d.getFullYear()!==now.getFullYear()) return false; }
-    if (q) { const hay = [e.notes,e.queen,e.temp,e.syrup,e.entrance,e.pests,e.type,e.date].join(' ').toLowerCase(); if (!hay.includes(q)) return false; }
-    return true;
-  });
-  document.getElementById('result-count').textContent = filtered.length === allEntries.length ? allEntries.length+' entries' : filtered.length+' of '+allEntries.length+' entries';
-  renderEntries(filtered);
-}
-
-function renderEntries(entries) {
-  const list = document.getElementById('entries-list');
-  if (!entries.length) { list.innerHTML = '<div class="empty-state"><div class="big">🍯</div>No entries match.</div>'; return; }
-  const sorted = [...entries].sort((a,b) => new Date(b.date)-new Date(a.date));
-  list.innerHTML = sorted.map(e => `
-    <div class="entry-card">
-      <div class="entry-inner">
-        <div class="entry-top">
-          <div class="entry-date">${fmtDate(e.date)}</div>
-          <div class="entry-badges"><span class="badge badge-${e.type}">${e.type}</span><button class="btn-edit" onclick="openEdit('${e.id}')">edit</button></div>
-        </div>
-        <div class="entry-body">${esc(e.notes)}</div>
-        <div class="entry-meta">
-          ${e.queen?`<div class="meta-chip">Queen: <b>${esc(e.queen)}</b></div>`:''}
-          ${e.temp?`<div class="meta-chip">Temperament: <b>${esc(e.temp)}</b></div>`:''}
-          ${e.syrup?`<div class="meta-chip">Feeding: <b>${esc(e.syrup)}</b></div>`:''}
-          ${e.entrance?`<div class="meta-chip">Entrance: <b>${esc(e.entrance)}</b></div>`:''}
-          ${e.pests?`<div class="meta-chip">Pests: <b>${esc(e.pests)}</b></div>`:''}
-        </div>
-      </div>
-
-    </div>`).join('');
-}
-
-
-async function saveEntry() {
-  const date = document.getElementById('f-date').value;
-  const notes = document.getElementById('f-notes').value.trim();
-  if (!date) { alert('Date is required.'); return; }
-  const fields = { date, type:document.getElementById('f-type').value, queen:document.getElementById('f-queen').value, temp:document.getElementById('f-temp').value, syrup:document.getElementById('f-syrup').value, entrance:getMsValue('ms-entrance'), notes, pests:document.getElementById('f-pests').value.trim() };
-  const msg = document.getElementById('save-msg');
-  msg.style.display = 'flex'; msg.textContent = 'Saving...';
-  try {
-    const newEntry = await atCreate(fields);
-    if (!newEntry) { showSaveError(); return; }
-    allEntries.push(newEntry);
-    document.getElementById('f-notes').value=''; document.getElementById('f-pests').value=''; document.getElementById('f-queen').value=''; document.getElementById('f-temp').value=''; document.getElementById('f-syrup').value=''; setMsValues('ms-entrance','');
-    msg.textContent = '✓ Saved';
-    setTimeout(async()=>{ msg.style.display='none'; hideAddForm(); applyFilters(); }, 900);
-  } catch(e) { showSaveError(); }
-}
-
-function openEdit(id) {
-  const e = allEntries.find(x=>x.id===id);
-  if (!e) return;
-  editingId = id;
-  document.getElementById('e-date').value = e.date;
-  document.getElementById('e-type').value = e.type;
-  document.getElementById('e-queen').value = e.queen||'';
-  document.getElementById('e-temp').value = e.temp||'';
-  document.getElementById('e-syrup').value = e.syrup||'';
-  document.getElementById('e-notes').value = e.notes||'';
-  document.getElementById('e-pests').value = e.pests||'';
-  setMsValues('ms-eentrance', e.entrance||'');
-  document.getElementById('edit-modal').classList.add('open');
-}
-
-async function saveEdit() {
-  const idx = allEntries.findIndex(x=>x.id===editingId);
-  if (idx===-1) return;
-  const fields = { date:document.getElementById('e-date').value, type:document.getElementById('e-type').value, queen:document.getElementById('e-queen').value, temp:document.getElementById('e-temp').value, syrup:document.getElementById('e-syrup').value, entrance:getMsValue('ms-eentrance'), notes:document.getElementById('e-notes').value.trim(), pests:document.getElementById('e-pests').value.trim() };
-  try {
-    await atUpdate(editingId, fields);
-    allEntries[idx] = { ...allEntries[idx], ...fields };
-    closeModal(); applyFilters();
-  } catch(e) { alert('Could not save changes. Try again.'); }
-}
-
-async function deleteEntry() {
-  if (!confirm('Delete this entry?')) return;
-  try {
-    await atDelete(editingId);
-    allEntries = allEntries.filter(x=>x.id!==editingId);
-    closeModal(); applyFilters();
-  } catch(e) { alert('Could not delete. Try again.'); }
-}
-
-function closeModal() { document.getElementById('edit-modal').classList.remove('open'); editingId=null; }
-
-
-function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function switchTab(name){document.getElementById('tab-log').style.display=name==='log'?'block':'none';document.getElementById('tab-add').style.display=name==='add'?'block':'none';}
-function showAddForm(){
-  const drawer = document.getElementById('add-drawer');
-  const overlay = document.getElementById('drawer-overlay');
-  drawer.style.display = 'block';
-  overlay.style.display = 'block';
-  requestAnimationFrame(() => { drawer.classList.add('open'); overlay.style.opacity = '1'; });
-}
-function hideAddForm(){
-  const drawer = document.getElementById('add-drawer');
-  const overlay = document.getElementById('drawer-overlay');
-  drawer.classList.remove('open');
-  overlay.style.opacity = '0';
-  setTimeout(() => { drawer.style.display = 'none'; overlay.style.display = 'none'; }, 300);
-}
-document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 const _now = new Date();
 document.getElementById('f-date').value = _now.getFullYear() + '-' + String(_now.getMonth()+1).padStart(2,'0') + '-' + String(_now.getDate()).padStart(2,'0');
+
 initMultiselects();
 loadEntries();
 </script>
-
-<!-- DRAWER OVERLAY -->
-<div id="drawer-overlay" onclick="hideAddForm()" style="display:none;position:fixed;inset:0;background:rgba(30,15,5,0.45);z-index:200;transition:opacity 0.25s;"></div>
-
-<!-- DRAWER -->
-<div id="add-drawer" style="display:none;position:fixed;z-index:201;background:var(--surface);overflow-y:auto;transition:transform 0.3s cubic-bezier(.32,.72,0,1);">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.2rem 0.75rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;">
-    <span style="font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);">New log entry</span>
-    <button onclick="hideAddForm()" style="background:transparent;border:none;cursor:pointer;font-size:18px;color:var(--text-muted);line-height:1;padding:2px 4px;">✕</button>
-  </div>
-  <div style="padding:1rem 1.2rem 2rem;">
-    <div class="form-grid" style="margin-bottom:12px;">
-      <div><label>Date</label><input type="date" id="f-date" style="width:auto;min-width:0;" /></div>
-      <div><label>Entry type</label>
-        <select id="f-type">
-          <option value="check">Quick check</option>
-          <option value="inspection">Full inspection</option>
-          <option value="install">Install</option>
-          <option value="maintenance">Maintenance</option>
-          <option value="note">Note</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-grid" style="margin-bottom:12px;">
-      <div><label>Queen status</label>
-        <select id="f-queen">
-          <option value="">Not checked</option>
-          <option value="Caged — candy exposed">Caged — candy exposed</option>
-          <option value="Released — confirmed">Released — confirmed</option>
-          <option value="Laying — brood seen">Laying — brood seen</option>
-          <option value="Possible issue">Possible issue</option>
-        </select>
-      </div>
-      <div><label>Temperament</label>
-        <select id="f-temp">
-          <option value="">Not noted</option>
-          <option value="Very calm">Very calm</option>
-          <option value="Calm">Calm</option>
-          <option value="Normal">Normal</option>
-          <option value="Defensive">Defensive</option>
-          <option value="Aggressive">Aggressive</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-grid" style="margin-bottom:12px;">
-      <div><label>Syrup / feeding</label>
-        <select id="f-syrup">
-          <option value="">Not noted</option>
-          <option value="Full jar">Full jar</option>
-          <option value="75% full">75% full</option>
-          <option value="Half full">Half full</option>
-          <option value="25% full">25% full</option>
-          <option value="Empty — refilled">Empty — refilled</option>
-          <option value="Bees ignoring syrup">Bees ignoring syrup</option>
-          <option value="Feeding stopped">Feeding stopped</option>
-        </select>
-      </div>
-      <div><label>Entrance activity</label>
-        <div class="multiselect">
-          <div class="multiselect-display" id="ms-entrance-display" onclick="toggleDropdown('ms-entrance')"><span class="placeholder">Select...</span></div>
-          <div class="multiselect-dropdown" id="ms-entrance-dropdown"></div>
-        </div>
-      </div>
-    </div>
-    <div class="form-row"><label>Observations</label><textarea id="f-notes" placeholder="Comb progress, colony sounds, behavior, anything notable..."></textarea></div>
-    <div class="form-row"><label>Pest / disease notes</label><input type="text" id="f-pests" placeholder="e.g. no mites seen, small hive beetles present..." /></div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="saveEntry()">Save entry</button>
-      <button class="btn btn-ghost" onclick="hideAddForm()">Cancel</button>
-      <div class="save-msg" id="save-msg">✓ Saved</div>
-    </div>
-  </div>
-</div>
 </body>
 </html>
