@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Warré Hive Journal — Mt. Helix</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --honey: #C8860A; --honey-light: #F5D280; --bark: #3D2B1F; --bark-mid: #6B4C38;
+    --bark-light: #A07850; --wax: #F9F0DC; --wax-dark: #EFE0B8; --moss: #4A5E3A;
+    --moss-light: #7A9462; --sky: #7BA4C2; --bg: #F7F0E4; --surface: #FFFCF5;
+    --border: rgba(61,43,31,0.12); --border-strong: rgba(61,43,31,0.25);
+    --text: #2A1E14; --text-mid: #5C4030; --text-muted: #9A7A60;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  header { background: var(--bark); color: var(--wax); padding: 1.1rem 1.5rem 0.9rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; border-bottom: 3px solid var(--honey); }
+  .header-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--honey-light); line-height: 1.1; }
+  .header-sub { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--bark-light); letter-spacing: 0.06em; margin-top: 3px; }
+  .status-pill { font-size: 10px; font-family: 'DM Mono', monospace; background: rgba(200,134,10,0.18); color: var(--honey-light); border: 1px solid rgba(200,134,10,0.3); border-radius: 20px; padding: 3px 11px; white-space: nowrap; }
+  .tabs { display: flex; background: var(--bark); padding: 0 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .tab { font-size: 13px; font-weight: 500; color: var(--bark-light); background: transparent; border: none; padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; font-family: 'Instrument Sans', sans-serif; }
+  .tab:hover { color: var(--wax); }
+  .tab.active { color: var(--honey-light); border-bottom-color: var(--honey); }
+  main { padding: 1.1rem 1.5rem; max-width: 780px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .alert { background: var(--surface); border: 1px solid var(--honey); border-left: 4px solid var(--honey); border-radius: 6px; padding: 9px 13px; margin-bottom: 1rem; font-size: 13px; color: var(--bark); display: flex; gap: 9px; align-items: flex-start; }
+  .alert-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .toolbar { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+  .toolbar input[type="text"] { flex: 1; min-width: 140px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: 'Instrument Sans', sans-serif; color: var(--text); outline: none; }
+  .toolbar input[type="text"]:focus { border-color: var(--honey); }
+  .toolbar select { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: 'Instrument Sans', sans-serif; color: var(--text); outline: none; cursor: pointer; }
+  .btn-summarize { font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 7px 13px; border-radius: 6px; border: 1px solid var(--honey); background: transparent; color: var(--honey); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+  .btn-summarize:hover { background: var(--honey); color: var(--wax); }
+  .summary-box { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--moss-light); border-radius: 6px; padding: 12px 14px; margin-bottom: 1rem; font-size: 13.5px; color: var(--text-mid); line-height: 1.7; display: none; }
+  .summary-box.visible { display: block; }
+  .summary-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--moss); letter-spacing: 0.06em; margin-bottom: 6px; }
+  .result-count { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.03em; }
+  .entries-list { display: flex; flex-direction: column; gap: 12px; }
+  .entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.15s; }
+  .entry-card:hover { border-color: var(--border-strong); }
+  .entry-inner { padding: 13px 15px; }
+  .entry-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 7px; gap: 8px; }
+  .entry-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
+  .entry-badges { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+  .badge { font-size: 10px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 20px; border: 1px solid; white-space: nowrap; letter-spacing: 0.03em; }
+  .badge-install { background: rgba(74,94,58,0.1); color: var(--moss); border-color: rgba(74,94,58,0.3); }
+  .badge-check { background: rgba(200,134,10,0.1); color: var(--honey); border-color: rgba(200,134,10,0.3); }
+  .badge-inspection { background: rgba(123,164,194,0.12); color: var(--sky); border-color: rgba(123,164,194,0.3); }
+  .badge-maintenance { background: rgba(107,76,56,0.1); color: var(--bark-mid); border-color: rgba(107,76,56,0.3); }
+  .badge-note { background: rgba(154,122,96,0.1); color: var(--text-muted); border-color: rgba(154,122,96,0.3); }
+  .btn-edit { font-size: 11px; font-family: 'DM Mono', monospace; background: transparent; border: 1px solid var(--border-strong); border-radius: 4px; padding: 2px 8px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+  .btn-edit:hover { color: var(--honey); border-color: var(--honey); }
+  .entry-body { font-size: 13.5px; color: var(--text-mid); line-height: 1.65; margin-bottom: 9px; }
+  .entry-meta { display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+  .meta-chip { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-muted); letter-spacing: 0.03em; }
+  .meta-chip b { color: var(--text-mid); font-weight: 500; }
+  .ai-feedback { background: rgba(74,94,58,0.06); border-top: 1px solid rgba(74,94,58,0.15); padding: 11px 15px; }
+  .ai-feedback-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--moss); letter-spacing: 0.06em; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+  .ai-feedback-text { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
+  .ai-feedback-loading { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-muted); font-style: italic; }
+  .ai-feedback-btn { font-size: 11px; font-family: 'DM Mono', monospace; background: transparent; border: 1px solid rgba(74,94,58,0.3); border-radius: 4px; padding: 2px 8px; color: var(--moss); cursor: pointer; transition: all 0.15s; }
+  .ai-feedback-btn:hover { background: rgba(74,94,58,0.1); }
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-size: 14px; }
+  .empty-state .big { font-family: 'DM Serif Display', serif; font-size: 2rem; margin-bottom: 8px; }
+  .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; margin-bottom: 1rem; }
+  .form-section-title { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--text); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row { margin-bottom: 12px; }
+  label { display: block; font-size: 11px; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
+  input[type="text"], input[type="date"], select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border-strong); border-radius: 6px; padding: 8px 10px; font-size: 13.5px; font-family: 'Instrument Sans', sans-serif; color: var(--text); outline: none; transition: border-color 0.15s; }
+  input:focus, select:focus, textarea:focus { border-color: var(--honey); background: var(--surface); }
+  textarea { min-height: 88px; resize: vertical; line-height: 1.5; }
+  .multiselect { position: relative; }
+  .multiselect-display { width: 100%; background: var(--bg); border: 1px solid var(--border-strong); border-radius: 6px; padding: 7px 10px; font-size: 13px; font-family: 'Instrument Sans', sans-serif; color: var(--text); cursor: pointer; min-height: 36px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; transition: border-color 0.15s; }
+  .multiselect-display.open { border-color: var(--honey); background: var(--surface); }
+  .multiselect-display .placeholder { color: var(--text-muted); font-size: 13px; }
+  .ms-pill { font-size: 11px; background: rgba(200,134,10,0.12); color: var(--honey); border: 1px solid rgba(200,134,10,0.25); border-radius: 20px; padding: 1px 8px; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+  .ms-pill-x { cursor: pointer; font-size: 13px; line-height: 1; opacity: 0.7; }
+  .ms-pill-x:hover { opacity: 1; }
+  .multiselect-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 4px 16px rgba(61,43,31,0.12); z-index: 50; margin-top: 3px; max-height: 200px; overflow-y: auto; display: none; }
+  .multiselect-dropdown.open { display: block; }
+  .ms-option { padding: 8px 12px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.1s; color: var(--text-mid); }
+  .ms-option:hover { background: var(--bg); }
+  .ms-option.selected { color: var(--honey); }
+  .ms-check { width: 14px; height: 14px; border: 1px solid var(--border-strong); border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 10px; }
+  .ms-option.selected .ms-check { background: var(--honey); border-color: var(--honey); color: white; }
+  .btn { font-family: 'Instrument Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 17px; border-radius: 6px; border: 1px solid; cursor: pointer; transition: all 0.15s; }
+  .btn-primary { background: var(--honey); color: var(--wax); border-color: var(--honey); }
+  .btn-primary:hover { background: #A87008; border-color: #A87008; }
+  .btn-ghost { background: transparent; color: var(--text-muted); border-color: var(--border-strong); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text-muted); }
+  .btn-danger { background: transparent; color: #B84040; border-color: rgba(184,64,64,0.3); }
+  .btn-danger:hover { background: rgba(184,64,64,0.08); }
+  .btn-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .save-msg { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--moss); padding: 6px 10px; background: rgba(74,94,58,0.08); border-radius: 6px; display: none; align-items: center; gap: 6px; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(30,15,5,0.55); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 12px; padding: 1.4rem; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-strong); }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 16px; color: var(--text); margin-bottom: 14px; }
+  @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } header { flex-direction: column; align-items: flex-start; } .toolbar { flex-direction: column; align-items: stretch; } }
+</style>
+  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+CiAgPHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0iIzNEMkIxRiIvPgogIDwhLS0gSG9uZXljb21iIGhleCBiYWNrZ3JvdW5kIC0tPgogIDxwb2x5Z29uIHBvaW50cz0iOTAsMTggMTQ1LDUwIDE0NSwxMTQgOTAsMTQ2IDM1LDExNCAzNSw1MCIgZmlsbD0iI0M4ODYwQSIgb3BhY2l0eT0iMC4xNSIvPgogIDwhLS0gTWFpbiBoZXggLS0+CiAgPHBvbHlnb24gcG9pbnRzPSI5MCwyOCAxMzgsNTUgMTM4LDExMCA5MCwxMzcgNDIsMTEwIDQyLDU1IiBmaWxsPSJub25lIiBzdHJva2U9IiNDODg2MEEiIHN0cm9rZS13aWR0aD0iMyIgb3BhY2l0eT0iMC42Ii8+CiAgPCEtLSBJbm5lciBoZXggLS0+CiAgPHBvbHlnb24gcG9pbnRzPSI5MCw0NSAxMjIsNjMgMTIyLDEwMCA5MCwxMTggNTgsMTAwIDU4LDYzIiBmaWxsPSIjQzg4NjBBIiBvcGFjaXR5PSIwLjI1Ii8+CiAgPCEtLSBIb25leSBkcmlwIC0tPgogIDxlbGxpcHNlIGN4PSI5MCIgY3k9IjcyIiByeD0iMjIiIHJ5PSIyMiIgZmlsbD0iI0M4ODYwQSIvPgogIDxwYXRoIGQ9Ik03OCw4OCBROTAsMTA4IDkwLDExNiBROTAsMTA4IDEwMiw4OCIgZmlsbD0iI0M4ODYwQSIvPgogIDwhLS0gU2hpbmUgLS0+CiAgPGVsbGlwc2UgY3g9IjgzIiBjeT0iNjUiIHJ4PSI2IiByeT0iNCIgZmlsbD0iI0Y1RDI4MCIgb3BhY2l0eT0iMC41IiB0cmFuc2Zvcm09InJvdGF0ZSgtMjAsODMsNjUpIi8+CiAgPCEtLSBTbWFsbCBiZWUgYW50ZW5uYWUgZG90cyAtLT4KICA8Y2lyY2xlIGN4PSI4NCIgY3k9IjU4IiByPSIyLjUiIGZpbGw9IiNGNUQyODAiIG9wYWNpdHk9IjAuOCIvPgogIDxjaXJjbGUgY3g9Ijk2IiBjeT0iNTgiIHI9IjIuNSIgZmlsbD0iI0Y1RDI4MCIgb3BhY2l0eT0iMC44Ii8+Cjwvc3ZnPg==">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Hive Journal">
+  <meta name="theme-color" content="#3D2B1F">
+</head>
+<body>
+<header>
+  <div>
+    <div class="header-title">Warré Hive Journal</div>
+    <div class="header-sub">MT. HELIX · EL CAJON, CA · OHB GOLDEN WEST</div>
+  </div>
+  <div class="status-pill">COLONY ACTIVE</div>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('log')">Log</button>
+  <button class="tab" onclick="switchTab('add')">Add entry</button>
+</div>
+<main>
+  <div id="tab-log" class="section active">
+    <div class="alert"><span class="alert-icon">🐝</span><span>Next check: Apr 27–30 — confirm queen is laying. Look for comb being drawn and young brood if light permits.</span></div>
+    <div class="toolbar">
+      <input type="text" id="search-input" placeholder="Search entries..." oninput="applyFilters()" />
+      <select id="filter-period" onchange="applyFilters()">
+        <option value="all">All time</option>
+        <option value="week">This week</option>
+        <option value="month">This month</option>
+        <option value="year">This year</option>
+      </select>
+      <button class="btn-summarize" onclick="summarizeEntries()">Summarize ↗</button>
+    </div>
+    <div class="summary-box" id="summary-box"><div class="summary-label">AI SUMMARY</div><div id="summary-text"></div></div>
+    <div class="result-count" id="result-count"></div>
+    <div class="entries-list" id="entries-list"><div class="empty-state"><div class="big">🍯</div>Loading entries...</div></div>
+  </div>
+  <div id="tab-add" class="section">
+    <div class="form-card">
+      <div class="form-section-title">New log entry</div>
+      <div class="form-grid">
+        <div><label>Date</label><input type="date" id="f-date" /></div>
+        <div><label>Entry type</label>
+          <select id="f-type">
+            <option value="check">Quick check</option>
+            <option value="inspection">Full inspection</option>
+            <option value="install">Install</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="note">Note</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div><label>Queen status</label>
+          <select id="f-queen">
+            <option value="">Not checked</option>
+            <option value="Caged — candy exposed">Caged — candy exposed</option>
+            <option value="Released — confirmed">Released — confirmed</option>
+            <option value="Laying — brood seen">Laying — brood seen</option>
+            <option value="Possible issue">Possible issue</option>
+          </select>
+        </div>
+        <div><label>Temperament</label>
+          <select id="f-temp">
+            <option value="">Not noted</option>
+            <option value="Very calm">Very calm</option>
+            <option value="Calm">Calm</option>
+            <option value="Normal">Normal</option>
+            <option value="Defensive">Defensive</option>
+            <option value="Aggressive">Aggressive</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div><label>Syrup / feeding</label>
+          <select id="f-syrup">
+            <option value="">Not noted</option>
+            <option value="Full jar">Full jar</option>
+            <option value="75% full">75% full</option>
+            <option value="Half full">Half full</option>
+            <option value="25% full">25% full</option>
+            <option value="Empty — refilled">Empty — refilled</option>
+            <option value="Bees ignoring syrup">Bees ignoring syrup</option>
+            <option value="Feeding stopped">Feeding stopped</option>
+          </select>
+        </div>
+        <div><label>Entrance activity</label>
+          <div class="multiselect">
+            <div class="multiselect-display" id="ms-entrance-display" onclick="toggleDropdown('ms-entrance')"><span class="placeholder">Select...</span></div>
+            <div class="multiselect-dropdown" id="ms-entrance-dropdown"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row"><label>Observations</label><textarea id="f-notes" placeholder="Comb progress, colony sounds, behavior, anything notable..."></textarea></div>
+      <div class="form-row"><label>Pest / disease notes</label><input type="text" id="f-pests" placeholder="e.g. no mites seen, small hive beetles present..." /></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveEntry()">Save entry</button>
+        <button class="btn btn-ghost" onclick="switchTab('log')">Cancel</button>
+        <div class="save-msg" id="save-msg">✓ Saved</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-title">Edit entry</div>
+    <div class="form-grid">
+      <div><label>Date</label><input type="date" id="e-date" /></div>
+      <div><label>Entry type</label>
+        <select id="e-type">
+          <option value="check">Quick check</option>
+          <option value="inspection">Full inspection</option>
+          <option value="install">Install</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="note">Note</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div><label>Queen status</label>
+        <select id="e-queen">
+          <option value="">Not checked</option>
+          <option value="Caged — candy exposed">Caged — candy exposed</option>
+          <option value="Released — confirmed">Released — confirmed</option>
+          <option value="Laying — brood seen">Laying — brood seen</option>
+          <option value="Possible issue">Possible issue</option>
+        </select>
+      </div>
+      <div><label>Temperament</label>
+        <select id="e-temp">
+          <option value="">Not noted</option>
+          <option value="Very calm">Very calm</option>
+          <option value="Calm">Calm</option>
+          <option value="Normal">Normal</option>
+          <option value="Defensive">Defensive</option>
+          <option value="Aggressive">Aggressive</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div><label>Syrup / feeding</label>
+        <select id="e-syrup">
+          <option value="">Not noted</option>
+          <option value="Full jar">Full jar</option>
+          <option value="75% full">75% full</option>
+          <option value="Half full">Half full</option>
+          <option value="25% full">25% full</option>
+          <option value="Empty — refilled">Empty — refilled</option>
+          <option value="Bees ignoring syrup">Bees ignoring syrup</option>
+          <option value="Feeding stopped">Feeding stopped</option>
+        </select>
+      </div>
+      <div><label>Entrance activity</label>
+        <div class="multiselect">
+          <div class="multiselect-display" id="ms-eentrance-display" onclick="toggleDropdown('ms-eentrance')"><span class="placeholder">Select...</span></div>
+          <div class="multiselect-dropdown" id="ms-eentrance-dropdown"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-row"><label>Observations</label><textarea id="e-notes"></textarea></div>
+    <div class="form-row"><label>Pest / disease notes</label><input type="text" id="e-pests" /></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveEdit()">Save changes</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="deleteEntry()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ENTRANCE_OPTS = ['No traffic','Light traffic','Steady traffic','Heavy traffic','Pollen coming in','Orientation flights','Bees clustering outside','Robbing activity','Unusual stillness'];
+const SYSTEM_PROMPT = `You are a beekeeping advisor for Matt, a Warré hive keeper (2 seasons) at Mt. Helix, El Cajon CA (inland San Diego, warm Mediterranean climate). Colony: OHB Golden West package installed April 16 2026. Queen released April 20. Warré hive only — no Langstroth advice. Matt prefers treatment-free but wants all options. Be concise, practical, 2-4 sentences. Respond with observations, patterns, concerns, or next steps relevant to this specific log entry and the colony's current stage.`;
+
+const SEED = [
+  { id:'seed-1', date:'2026-04-16', type:'install', queen:'Caged — candy exposed (discovered corked, fixed Apr 17)', temp:'Very calm', syrup:'Two full jars installed', entrance:'Orientation flights', notes:'OHB Golden West package installed. Bees shaken into Box 1. Queen cage (JZ-BZ style) hung via toothpick method across Warré bars in Box 2. Candy plug inadvertently left corked at install — discovered and corrected next day.', pests:'None observed.', aiFeedback:'' },
+  { id:'seed-2', date:'2026-04-17', type:'check', queen:'Caged — candy exposed', temp:'Calm', syrup:'', entrance:'Steady traffic', notes:'Discovered candy plug was still corked from install. Opened cloth above Box 2, pulled cage, removed cork, re-hung via toothpick with candy now fully exposed. Bees calm throughout. Queen release clock starts today.', pests:'', aiFeedback:'' },
+  { id:'seed-3', date:'2026-04-18', type:'maintenance', queen:'', temp:'Very calm', syrup:'Full jar', entrance:'Steady traffic', notes:'Reconfigured feeding setup. Canvas folded back halfway to expose top bars. Wooden feeder board with 3.5" hole installed directly over open hive. Single mason jar inverted into hole — bees now have direct access to lid without canvas barrier. Feeder box placed on top. Small gap between feeder box and second box sealed with strips of birch veneer. No screen on feeder board hole — jar installation requires care to avoid bee escape but manageable. Bees were very gentle throughout, no sting attempts, no agitation. First real handling impression of the Golden West bees — notably calm.', pests:'', aiFeedback:'' },
+  { id:'seed-4', date:'2026-04-20', type:'check', queen:'Released — confirmed', temp:'Calm', syrup:'75% full', entrance:'Steady traffic', notes:'Queen release confirmed. Candy fully consumed, cage empty. Bees had begun drawing comb cells on sides of the cage. Cage removed. Colony showed mild response to opening — some buzzing and flying but calm overall. Feeder board and cloth replaced. Approx 20 dead bees observed on ground outside hive — consistent with shipping casualties being cleared out.', pests:'', aiFeedback:'' }
+];
+
+let allEntries = [];
+let editingId = null;
+const msState = { 'ms-entrance': [], 'ms-eentrance': [] };
+
+function initMultiselects() {
+  buildDropdown('ms-entrance', ENTRANCE_OPTS);
+  buildDropdown('ms-eentrance', ENTRANCE_OPTS);
+}
+
+function buildDropdown(id, opts) {
+  const dd = document.getElementById(id + '-dropdown');
+  dd.innerHTML = '';
+  opts.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'ms-option';
+    div.innerHTML = '<div class="ms-check"></div>' + o;
+    div.addEventListener('click', function(e) { e.stopPropagation(); toggleOpt(id, o); });
+    dd.appendChild(div);
+  });
+}
+
+function toggleDropdown(id) {
+  const dd = document.getElementById(id + '-dropdown');
+  const disp = document.getElementById(id + '-display');
+  const isOpen = dd.classList.contains('open');
+  document.querySelectorAll('.multiselect-dropdown.open').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.multiselect-display.open').forEach(d => d.classList.remove('open'));
+  if (!isOpen) { dd.classList.add('open'); disp.classList.add('open'); }
+}
+
+function toggleOpt(id, val) {
+  const arr = msState[id];
+  const idx = arr.indexOf(val);
+  if (idx === -1) arr.push(val); else arr.splice(idx, 1);
+  refreshDropdown(id);
+  refreshDisplay(id);
+}
+
+function refreshDropdown(id) {
+  document.querySelectorAll('#' + id + '-dropdown .ms-option').forEach(opt => {
+    const label = opt.textContent.trim();
+    const sel = msState[id].includes(label);
+    opt.classList.toggle('selected', sel);
+    opt.querySelector('.ms-check').textContent = sel ? '✓' : '';
+  });
+}
+
+function refreshDisplay(id) {
+  const disp = document.getElementById(id + '-display');
+  const arr = msState[id];
+  if (!arr.length) { disp.innerHTML = '<span class="placeholder">Select...</span>'; return; }
+  disp.innerHTML = '';
+  arr.forEach(v => {
+    const pill = document.createElement('span');
+    pill.className = 'ms-pill';
+    pill.textContent = v;
+    const x = document.createElement('span');
+    x.className = 'ms-pill-x';
+    x.textContent = '×';
+    x.addEventListener('click', function(e) { e.stopPropagation(); toggleOpt(id, v); });
+    pill.appendChild(x);
+    disp.appendChild(pill);
+  });
+}
+
+function setMsValues(id, val) {
+  msState[id] = val ? val.split(', ').filter(Boolean) : [];
+  refreshDropdown(id);
+  refreshDisplay(id);
+}
+
+function getMsValue(id) { return msState[id].join(', '); }
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.multiselect')) {
+    document.querySelectorAll('.multiselect-dropdown.open').forEach(d => d.classList.remove('open'));
+    document.querySelectorAll('.multiselect-display.open').forEach(d => d.classList.remove('open'));
+  }
+});
+
+async function loadEntries() {
+  let stored = [];
+  try { const r = await window.storage.get('hive_j_v3'); if (r && r.value) stored = JSON.parse(r.value); } catch(e) {}
+  const storedIds = stored.map(e => e.id);
+  const missingSeed = SEED.filter(s => !storedIds.includes(s.id));
+  allEntries = [...missingSeed, ...stored];
+  if (missingSeed.length) { try { await window.storage.set('hive_j_v3', JSON.stringify(allEntries)); } catch(e) {} }
+  applyFilters();
+}
+
+async function persist() {
+  try {
+    const result = await window.storage.set('hive_j_v3', JSON.stringify(allEntries));
+    if (!result) showSaveError();
+  } catch(e) { showSaveError(); }
+}
+
+function showSaveError() {
+  const msg = document.getElementById('save-msg');
+  msg.style.display = 'flex'; msg.style.color = '#B84040';
+  msg.textContent = '✗ Save failed';
+  setTimeout(() => { msg.style.display = 'none'; msg.style.color = ''; msg.textContent = '✓ Saved'; }, 3000);
+}
+
+function applyFilters() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  const period = document.getElementById('filter-period').value;
+  const now = new Date();
+  let filtered = allEntries.filter(e => {
+    if (period === 'week') { const d = new Date(e.date+'T12:00:00'); const sow = new Date(now); sow.setDate(now.getDate()-now.getDay()); sow.setHours(0,0,0,0); if (d < sow) return false; }
+    else if (period === 'month') { const d = new Date(e.date+'T12:00:00'); if (d.getMonth()!==now.getMonth()||d.getFullYear()!==now.getFullYear()) return false; }
+    else if (period === 'year') { const d = new Date(e.date+'T12:00:00'); if (d.getFullYear()!==now.getFullYear()) return false; }
+    if (q) { const hay = [e.notes,e.queen,e.temp,e.syrup,e.entrance,e.pests,e.type,e.date].join(' ').toLowerCase(); if (!hay.includes(q)) return false; }
+    return true;
+  });
+  document.getElementById('result-count').textContent = filtered.length === allEntries.length ? allEntries.length+' entries' : filtered.length+' of '+allEntries.length+' entries';
+  renderEntries(filtered);
+}
+
+function renderEntries(entries) {
+  const list = document.getElementById('entries-list');
+  if (!entries.length) { list.innerHTML = '<div class="empty-state"><div class="big">🍯</div>No entries match.</div>'; return; }
+  const sorted = [...entries].sort((a,b) => new Date(b.date)-new Date(a.date));
+  list.innerHTML = sorted.map(e => `
+    <div class="entry-card">
+      <div class="entry-inner">
+        <div class="entry-top">
+          <div class="entry-date">${fmtDate(e.date)}</div>
+          <div class="entry-badges"><span class="badge badge-${e.type}">${e.type}</span><button class="btn-edit" onclick="openEdit('${e.id}')">edit</button></div>
+        </div>
+        <div class="entry-body">${esc(e.notes)}</div>
+        <div class="entry-meta">
+          ${e.queen?`<div class="meta-chip">Queen: <b>${esc(e.queen)}</b></div>`:''}
+          ${e.temp?`<div class="meta-chip">Temperament: <b>${esc(e.temp)}</b></div>`:''}
+          ${e.syrup?`<div class="meta-chip">Feeding: <b>${esc(e.syrup)}</b></div>`:''}
+          ${e.entrance?`<div class="meta-chip">Entrance: <b>${esc(e.entrance)}</b></div>`:''}
+          ${e.pests?`<div class="meta-chip">Pests: <b>${esc(e.pests)}</b></div>`:''}
+        </div>
+      </div>
+      <div class="ai-feedback" id="fb-${e.id}">
+        <div class="ai-feedback-label">
+          <span>ADVISOR NOTE</span>
+          ${!e.aiFeedback?`<button class="ai-feedback-btn" onclick="generateFeedback('${e.id}')">Generate ↗</button>`:''}
+        </div>
+        <div class="ai-feedback-text" id="fb-text-${e.id}">${e.aiFeedback?esc(e.aiFeedback):'<span class="ai-feedback-loading">Tap Generate for AI feedback on this entry.</span>'}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function generateFeedback(id) {
+  const e = allEntries.find(x => x.id === id);
+  if (!e) return;
+  const btn = document.querySelector('#fb-'+id+' .ai-feedback-btn');
+  const txt = document.getElementById('fb-text-'+id);
+  if (btn) btn.remove();
+  txt.innerHTML = '<span class="ai-feedback-loading">Thinking...</span>';
+  const entryText = `[${e.date}] ${e.type.toUpperCase()}: ${e.notes}${e.queen?' | Queen: '+e.queen:''}${e.temp?' | Temp: '+e.temp:''}${e.syrup?' | Feeding: '+e.syrup:''}${e.entrance?' | Entrance: '+e.entrance:''}${e.pests?' | Pests: '+e.pests:''}`;
+  const history = allEntries.filter(x=>x.date<=e.date&&x.id!==e.id).sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(-5).map(x=>`[${x.date}] ${x.type}: ${x.notes}${x.queen?' | Queen: '+x.queen:''}${x.temp?' | Temp: '+x.temp:''}`).join('\n');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:400, system:SYSTEM_PROMPT, messages:[{role:'user',content:`Recent context:\n${history}\n\nEntry to analyze:\n${entryText}`}] })
+    });
+    const data = await res.json();
+    const reply = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('')||'No feedback generated.';
+    txt.textContent = reply;
+    const idx = allEntries.findIndex(x=>x.id===id);
+    if (idx!==-1) { allEntries[idx].aiFeedback = reply; await persist(); }
+  } catch(err) { txt.textContent = 'Could not reach advisor. Ask in the project chat.'; }
+}
+
+async function saveEntry() {
+  const date = document.getElementById('f-date').value;
+  const notes = document.getElementById('f-notes').value.trim();
+  if (!date||!notes) { alert('Date and observations are required.'); return; }
+  const newEntry = { id:'e'+Date.now(), date, type:document.getElementById('f-type').value, queen:document.getElementById('f-queen').value, temp:document.getElementById('f-temp').value, syrup:document.getElementById('f-syrup').value, entrance:getMsValue('ms-entrance'), notes, pests:document.getElementById('f-pests').value.trim(), aiFeedback:'' };
+  allEntries.push(newEntry);
+  await persist();
+  document.getElementById('f-notes').value=''; document.getElementById('f-pests').value=''; document.getElementById('f-queen').value=''; document.getElementById('f-temp').value=''; document.getElementById('f-syrup').value=''; setMsValues('ms-entrance','');
+  const msg = document.getElementById('save-msg');
+  msg.style.display = 'flex';
+  setTimeout(async()=>{ msg.style.display='none'; switchTab('log'); applyFilters(); await generateFeedback(newEntry.id); }, 900);
+}
+
+function openEdit(id) {
+  const e = allEntries.find(x=>x.id===id);
+  if (!e) return;
+  editingId = id;
+  document.getElementById('e-date').value = e.date;
+  document.getElementById('e-type').value = e.type;
+  document.getElementById('e-queen').value = e.queen||'';
+  document.getElementById('e-temp').value = e.temp||'';
+  document.getElementById('e-syrup').value = e.syrup||'';
+  document.getElementById('e-notes').value = e.notes||'';
+  document.getElementById('e-pests').value = e.pests||'';
+  setMsValues('ms-eentrance', e.entrance||'');
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+async function saveEdit() {
+  const idx = allEntries.findIndex(x=>x.id===editingId);
+  if (idx===-1) return;
+  allEntries[idx] = { ...allEntries[idx], date:document.getElementById('e-date').value, type:document.getElementById('e-type').value, queen:document.getElementById('e-queen').value, temp:document.getElementById('e-temp').value, syrup:document.getElementById('e-syrup').value, entrance:getMsValue('ms-eentrance'), notes:document.getElementById('e-notes').value.trim(), pests:document.getElementById('e-pests').value.trim() };
+  await persist(); closeModal(); applyFilters();
+}
+
+async function deleteEntry() {
+  if (!confirm('Delete this entry?')) return;
+  allEntries = allEntries.filter(x=>x.id!==editingId);
+  await persist(); closeModal(); applyFilters();
+}
+
+function closeModal() { document.getElementById('edit-modal').classList.remove('open'); editingId=null; }
+
+async function summarizeEntries() {
+  const q=(document.getElementById('search-input').value||'').toLowerCase();
+  const period=document.getElementById('filter-period').value; const now=new Date();
+  let filtered=allEntries.filter(e=>{
+    if(period==='week'){const d=new Date(e.date+'T12:00:00');const sow=new Date(now);sow.setDate(now.getDate()-now.getDay());sow.setHours(0,0,0,0);if(d<sow)return false;}
+    else if(period==='month'){const d=new Date(e.date+'T12:00:00');if(d.getMonth()!==now.getMonth()||d.getFullYear()!==now.getFullYear())return false;}
+    else if(period==='year'){const d=new Date(e.date+'T12:00:00');if(d.getFullYear()!==now.getFullYear())return false;}
+    if(q){const hay=[e.notes,e.queen,e.temp,e.syrup,e.entrance,e.pests,e.type].join(' ').toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  if(!filtered.length){alert('No entries to summarize.');return;}
+  const box=document.getElementById('summary-box');const txt=document.getElementById('summary-text');
+  box.classList.add('visible');txt.textContent='Summarizing...';
+  const logText=filtered.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(e=>`[${e.date}] ${e.type.toUpperCase()}: ${e.notes}${e.queen?' | Queen: '+e.queen:''}${e.temp?' | Temp: '+e.temp:''}${e.syrup?' | Feeding: '+e.syrup:''}${e.entrance?' | Entrance: '+e.entrance:''}${e.pests?' | Pests: '+e.pests:''}`).join('\n');
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:'You are a beekeeping advisor summarizing hive journal entries for Matt, a Warré beekeeper at Mt. Helix, El Cajon CA. Summarize colony health trends, queen status, feeding, temperament, any concerns. Be concise and practical. 3-5 sentences.',messages:[{role:'user',content:'Summarize these hive log entries:\n\n'+logText}]})});
+    const data=await res.json();
+    txt.textContent=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('')||'Could not generate summary.';
+  } catch(e){txt.textContent='Could not reach summary service. Ask in the project chat.';}
+}
+
+function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function switchTab(name){['log','add'].forEach((t,i)=>{document.querySelectorAll('.tab')[i].classList.toggle('active',t===name);document.getElementById('tab-'+t).classList.toggle('active',t===name);});}
+document.getElementById('edit-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+initMultiselects();
+loadEntries();
+</script>
+</body>
+</html>
