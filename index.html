@@ -304,14 +304,20 @@ function atHeaders() {
 
 async function loadEntries() {
   const list = document.getElementById('entries-list');
-  list.innerHTML = '<div class="empty-state"><div class="big">🍯</div>Loading...</div>';
+  list.innerHTML = '<div class="empty-state">Connecting to Airtable...</div>';
   try {
+    list.innerHTML = '<div class="empty-state">Fetching records...</div>';
     const res = await fetch(AT_URL + '?sort[0][field]=date&sort[0][direction]=desc&pageSize=100', { headers: atHeaders() });
+    list.innerHTML = '<div class="empty-state">Parsing response (status ' + res.status + ')...</div>';
     const data = await res.json();
+    if (data.error) {
+      list.innerHTML = '<div class="empty-state">Airtable error: ' + data.error.message + '</div>';
+      return;
+    }
     allEntries = (data.records || []).map(r => ({ id: r.id, ...r.fields }));
+    list.innerHTML = '<div class="empty-state">Got ' + allEntries.length + ' entries, rendering...</div>';
   } catch(e) {
-    console.error('Load error:', e);
-    document.getElementById('entries-list').innerHTML = '<div class="empty-state">Could not load entries. Check connection and refresh.</div>';
+    list.innerHTML = '<div class="empty-state">Error: ' + e.message + '</div>';
     return;
   }
   applyFilters();
